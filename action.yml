@@ -1,0 +1,49 @@
+---
+name: Test Ansible roles with Molecule and Podman
+description: Run Molecule with Podman to test Ansible roles
+author: Uco Mesdag <uco@mesd.ag>
+
+inputs:
+  namespace:
+    description: The [Quoy.io](https://quay.io/repository/) namespace where the image can be found.
+    required: false
+    default: ucomesdag
+  image:
+    description: The image you want to run on.
+    required: false
+    default: fedora
+  tag:
+    description: The tag of the container image to use.
+    required: false
+    default: latest
+  options:
+    description: Options you can pass to [`tox`](https://tox.readthedocs.io/en/latest/), for example `--parallel all`.
+    required: false
+  command:
+    description: What command to pass to [molecule](https://molecule.readthedocs.io/en/latest/), for example `lint` or `syntax`.
+    required: false
+    default: test
+  scenario:
+    description: The molecule scenario to run.
+    required: false
+    default: default
+
+runs:
+  using: composite
+  steps:
+    - name: Run
+      shell: bash
+      run: >
+        sudo podman run --rm --privileged --tty --interactive
+        --volume ${{ github.workspace }}:/github/workspace:z
+        --env GITHUB_REPOSITORY=${{ github.repository }}
+        --env ANSIBLE_ROLES_PATH=../
+        --env MOLECULE_DISTRO=quay.io/${{ inputs.namespace }}/${{ inputs.image }}:${{ inputs.tag }}
+        --env options='${{ inputs.options }}'
+        --env command=${{ inputs.command }}
+        --env scenario=${{ inputs.scenario }}
+        quay.io/ucomesdag/github-action-molecule:latest
+
+branding:
+  icon: play
+  color: green
