@@ -1,0 +1,5 @@
+---
+repository:
+  description: A GitHub action to tests your Ansible role using Molecule and Podman.
+  homepage: https://mesd.ag/
+  topics: github, action, molecule, podman
